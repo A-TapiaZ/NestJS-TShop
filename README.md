@@ -72,3 +72,34 @@ nest g res product --no-spec
 ```
  imports: [TypeOrmModule.forFeature([Product])],
 ```
+
+11. Una vez hemos definido las entities, procedemos a definir los dto (data transfer object) y usamos la dependencia class-validator la cual debemos instalar:
+
+```
+yarn add class-validator class-transformer
+```
+
+12. Ademas debemos usar la configuracion de globalPipe en el archivo **main.ts** para poder realizar las validaciones usando los dtos.
+
+```
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      })
+    );
+
+```
+
+13. Una vez ya estamos validando la informacion que nos envían por medio de los DTO, podemos empezar a insertar registros en la DB. Para realizar realizar estas inserciones usamos el patron repositorio, el cual debemos inyectar en el constructor del services dentro del modulo:
+
+```
+  constructor(
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
+  ) {}
+```
+
+- El decorador InjectRepository se importa de `@nestjs/typeorm`
+- Product es la entity que se definio en pasos anteriores
+- Repository se importa de `typeorm`
