@@ -1,13 +1,17 @@
+import { ProductImage } from './product-images.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
   Column,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
 //OJO: Hay que usar el decorador @Entity de typeORM
-@Entity()
+@Entity({
+  name: 'products',
+})
 export class Product {
   //En vez de usar un numero que autoincrementa, usamos un uuid como PK
   @PrimaryGeneratedColumn('uuid')
@@ -50,10 +54,21 @@ export class Product {
   })
   tags: string[];
 
+  //Cascade es para que las acciones que realicemos en nuestra DB se hagan en cascada
+  //eager: es una configuracion que habilita la consulta con relaciones usando cualquier metodo find*
+  @OneToMany(() => ProductImage, (productImage) => productImage.product, {
+    cascade: true,
+    eager: true,
+  })
+  images?: ProductImage[];
+
   @BeforeInsert()
   checkSlugInsert() {
     if (!this.slug) {
-      this.slug = this.title;
+      this.slug = this.title
+        .toLowerCase()
+        .replaceAll(' ', '_')
+        .replaceAll("'", '');
     } else {
       this.slug = this.slug
         .toLowerCase()
