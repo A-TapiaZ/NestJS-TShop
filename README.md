@@ -16,14 +16,17 @@ docker-compose up -d
 5. Ejecutar el seed:
 
 ```
-http://localhost:3000/api/seed
+yarn start:dev
 ```
 
 6. Levantar el proyecto:
 
 ```
-yarn start:dev
+http://localhost:3000/api/seed
+
 ```
+
+#
 
 # Readme para mi
 
@@ -109,3 +112,58 @@ yarn add class-validator class-transformer
 - El decorador InjectRepository se importa de `@nestjs/typeorm`
 - Product es la entity que se definio en pasos anteriores
 - Repository se importa de `typeorm`
+
+#
+
+# Autenticacion y autorizacion
+
+1. Generamos un recurso que se llame auth.
+
+```
+nest g res auth --no-spec
+```
+
+2. Modificamos el archivo entity y lo renombramos user.entity.ts. Renombramos la clase dentro del archivo por `User`. Colocamos el decorador `@Entity('users')` de typeorm y definimos las propiedades de la entidad.
+
+3. Para crear la tabla en la DB, es necesario importar el modulo `TypeOrmModule.forFeature` dentro del modulo que se esta trabanjando y pasarle la entidad anteriormente definida.
+
+4. Una vez tengamos definida nuestra entidad podemos empezar a trabajar sobre nuestros controladores. Por ejemplo definiendo los DTO con los que vamos a trabajar. Para realizar validaciones podemos usar el paquete `class-validator`.
+
+5. Una vez creado nuestro DTO y definido nuestro controlador, podemos empezar a insertar registros dentro de la DB. Para realizar esto debemos injectar nuestro repositorio en el servicio del modulo donde estamos trabajando. Para realizar la inyeccion debemos importar el decorador `@InjectRepository(User)` y pasarle la definicion de nuestra entidad. Una vez hecho esto podemos crear la definicion de nuestro repositorio `private readonly userRepository: Repository<User>`
+
+6. Al tener esta inyeccion lista, podemos realizar cambios en nuestra DB usando el repositorio, para este caso crear un nuevo usuario.
+
+7. Para realizar el login vamos a usar `passport` con `passport-jwt` para eso instalamos passport:
+
+```
+yarn add @nestjs/passport passport
+yarn add @nestjs/jwt passport-jwt
+yarn add -D @types/passport-jwt
+```
+
+Despues de instalarlos, procedemos a importarlo en el modulo donde donde nos estamos autenticando en este caso en el auth.module.ts. Usamos `JwtModule.registerAsync` de forma asincrona para esperar a que todos los modulos esten cargados.
+
+```
+PassportModule.register({ defaultStrategy: 'jwt' }),
+JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        return {
+          secret: configService.get('JWT_SECRET'),
+          signOptions: {
+            expiresIn: '2h',
+          },
+        };
+      },
+    }),
+```
+
+8. Para realizar la verificacion de los jwt-tokens, lo realizamos mediante una strategia. Una vez tengamos la estrategia definida, usamos el decorador `@Injectable()` y lo implementamos en el auth.module
+
+#
+
+# Recordatorio
+
+1. Recordar usar el tryCatch
+2. poner el await en las peticiones que realizan acciones con nuestra db

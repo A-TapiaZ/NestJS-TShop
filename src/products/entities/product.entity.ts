@@ -1,9 +1,11 @@
 import { ProductImage } from './product-images.entity';
+import { User } from '../../auth/entities/user.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
   Column,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -61,6 +63,10 @@ export class Product {
     eager: true,
   })
   images?: ProductImage[];
+
+  //eager: es una configuracion que habilita la consulta con relaciones usando cualquier metodo find*
+  @ManyToOne(() => User, (user) => user.product, { eager: true })
+  user: User;
 
   @BeforeInsert()
   checkSlugInsert() {
