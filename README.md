@@ -163,6 +163,42 @@ JwtModule.registerAsync({
 
 #
 
+# Documentar
+
+1. Para documentar usando OpenAPI nos podemos dirigir a la siguiente **[URL](https://docs.nestjs.com/openapi/introduction)** donde encontraremos el paquete que debemos instalar y la configuracion de este modulo en el arcchivo main.
+
+```
+yarn add @nestjs/swagger
+
+```
+
+```
+const config = new DocumentBuilder()
+  .setTitle('Cats example')
+  .setDescription('The cats API description')
+  .setVersion('1.0')
+  .addTag('cats')
+  .build();
+const document = SwaggerModule.createDocument(app, config);
+SwaggerModule.setup('api', app, document);
+```
+
+2. Una vez configurado el modulo ppal, podemos ir a cada uno de los controladores y agregar el decorador `@ApiTags()` para darle un nombre/tag a la seccion.
+
+3. Si queremos detallar las respuestas usamos el decorador `@ApiResponse()` debajo del decorador REST de cada uno de los controladores.
+
+4. Si dentro del decorador ApiResponse usamos como type(es una propiedad del decorador) por ejemplo una entidad, podemos usar el decorador `@ApiProperty()` **EN** la definicion de la misma para que sea mostrada en la documentacion.
+
+```
+@ApiProperty({
+  example: 'ui123-3123sdasd-s54dad3as',
+  uniqueItems: true,
+  description: 'Product id',
+})
+```
+
+5. De igual forma `@ApiProperty()` puede ser usado en los dto's y además si un algun dto llegara a ser completamente la implementacion de otro como lo es **UpdateProductDto** entonces podriamos importar **PartialType**, no de `'@nestjs/mapped-types'` como lo hace por defecto, sino de `'@nestjs/swagger'`.
+
 # Recordatorio
 
 1. Recordar usar el tryCatch
